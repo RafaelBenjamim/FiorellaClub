@@ -1,4 +1,4 @@
-import ribbon from "../../assets/footer.jpg";
+import { AiOutlineInstagram, AiOutlineWhatsApp } from "react-icons/ai";
 
 function Footer() {
   return (
@@ -7,7 +7,6 @@ function Footer() {
       className="bg-[#4a0b16] text-[#fce3e4] py-16 text-center mt-auto rounded-t-[3rem]"
     >
       <div className="text-4xl font-serif mb-6">Fiorella Club</div>
-      <img src={ribbon} alt="" className="w-16 h-16 mx-auto mb-4 opacity-90" />
       <p className="mb-10 opacity-90 max-w-md mx-auto font-light">
         Criando momentos, conexões e arte.
       </p>
@@ -15,14 +14,20 @@ function Footer() {
       <div className="flex justify-center gap-10 mb-12">
         <a
           href="https://www.instagram.com/fiorellaclub_/"
-          className="hover:text-[#c07a82] transition-colors tracking-widest uppercase text-sm font-semibold"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:text-[#c07a82] transition-colors tracking-widest uppercase text-sm font-semibold"
         >
+          <AiOutlineInstagram size={20} />
           Instagram
         </a>
         <a
-          href="#"
-          className="hover:text-[#c07a82] transition-colors tracking-widest uppercase text-sm font-semibold"
+          href="https://wa.me/5534992468401"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:text-[#c07a82] transition-colors tracking-widest uppercase text-sm font-semibold"
         >
+          <AiOutlineWhatsApp size={20} />
           WhatsApp
         </a>
       </div>
