@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getConfirmacao } from "../services/eventService";
+import { getConfirmacao } from "../services/registrationService";
 import type { ConfirmacaoResponse } from "../types/event";
 
 const statusConfig = {
@@ -31,17 +31,17 @@ function ConfirmacaoPage() {
   const [confirmacao, setConfirmacao] = useState<ConfirmacaoResponse | null>(null);
   const [animado, setAnimado] = useState(false);
 
-  useEffect(() => {
-    if (registrationId) {
-      getConfirmacao(registrationId)
-        .then((data) => {
-          setConfirmacao(data);
-          setTimeout(() => setAnimado(true), 100);
-        })
-        .catch((err) => setError(err.message))
-        .finally(() => setLoading(false));
-    }
-  }, [registrationId]);
+ useEffect(() => {
+  if (registrationId) {
+    getConfirmacao(registrationId)
+      .then((data: ConfirmacaoResponse) => {
+        setConfirmacao(data);
+        setTimeout(() => setAnimado(true), 100);
+      })
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
+  }
+}, [registrationId]); 
 
   const formatarData = (dataStr: string) => {
     const data = new Date(dataStr);
