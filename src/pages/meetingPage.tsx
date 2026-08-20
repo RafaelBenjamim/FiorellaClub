@@ -75,7 +75,6 @@ function MeetingPage() {
         phone: formData.phone,
       });
 
-      // redireciona pro checkout da InfinitePay
       window.location.assign(response.paymentUrl);
     } catch (err) {
       const message =
@@ -86,7 +85,6 @@ function MeetingPage() {
     }
   };
 
-  // Loading
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fce3e4] flex items-center justify-center">
@@ -95,7 +93,6 @@ function MeetingPage() {
     );
   }
 
-  // Erro ao buscar eventos
   if (error) {
     return (
       <div className="min-h-screen bg-[#fce3e4] flex items-center justify-center px-6">
@@ -109,7 +106,6 @@ function MeetingPage() {
     );
   }
 
-  // Lista de eventos (sem eventId na URL)
   if (!eventId) {
     return (
       <div className="min-h-screen bg-[#fce3e4] text-[#4a0b16] font-sans">

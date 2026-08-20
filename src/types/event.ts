@@ -24,3 +24,13 @@ export interface RegistrationResponse {
   status: string;
   paymentUrl: string;
 }
+
+export interface ConfirmacaoResponse{
+  id: string;
+  name: string;
+  title: string;
+  date: string;
+  location?: string;
+  status: number;
+
+}

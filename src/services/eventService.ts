@@ -13,6 +13,18 @@ export async function getEventos(): Promise<Evento[]> {
   return response.json();
 }
 
+export async function getConfirmacao() : Promise<ConfirmacaoResponse>{
+  const response = await fetch(`${API_BASE_URL}/api/registrations/${Id}`,{
+    headers:{
+      "ngrok-skip-browser-warning": "true"
+    }
+  });
+
+  if(!response.ok) throw new Error("Inscrição não encontrada.");
+
+  return response.json();
+}
+
 export async function getEventoAtual(): Promise<Evento> {
   const response = await fetch(
     `${API_BASE_URL}/api/event/current/${STORE_SLUG}`,
