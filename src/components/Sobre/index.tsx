@@ -6,7 +6,8 @@ function Sobre() {
   return (
     <section
       id="sobre"
-      className="py-24 px-6 md:px-12 max-w-5xl mx-auto bg-white rounded-[3rem] shadow-sm my-12 border border-[#fce3e4]"
+      // ADICIONAMOS 'mt-8 md:mt-12' AQUI para afastar do Hero perfeitamente
+      className="py-16 px-6 md:px-12 max-w-5xl mx-auto bg-white rounded-[3rem] shadow-sm mt-8 md:mt-12 border border-[#fce3e4]"
     >
       <motion.h2
         initial={{ opacity: 0, y: 20 }}

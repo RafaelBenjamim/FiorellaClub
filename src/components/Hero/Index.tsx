@@ -5,7 +5,9 @@ export function Hero() {
   return (
     <section
       id="inicio"
-      className="relative flex-1 flex flex-col items-center justify-center text-center py-28 px-6 overflow-hidden"
+      // Trocamos o flex-1 por um py robusto e elegante (py-32 md:py-40) 
+      // para que o conteúdo tenha espaço de sobra e nunca encoste nas bordas.
+      className="relative flex flex-col items-center justify-center text-center py-32 md:py-40 px-6 overflow-hidden"
     >
       <img
         src={heroBg}
@@ -14,17 +16,17 @@ export function Hero() {
       />
       <div className="absolute inset-0 bg-[#4a0b16]/55"></div>
 
-      <div className="relative z-10 max-w-4xl">
-        <h1 className="text-5xl md:text-7xl font-serif mb-6 leading-tight text-[#fce3e4]">
+      <div className="relative z-10 max-w-4xl mx-auto">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif mb-6 leading-tight text-[#fce3e4]">
           Um encontro para respirar, criar e voltar com mais leveza
         </h1>
-        <p className="text-lg md:text-xl max-w-2xl mx-auto text-[#fce3e4]/90 mb-12 font-medium">
+        <p className="text-base md:text-xl max-w-2xl mx-auto text-[#fce3e4]/90 mb-10 md:mb-12 font-medium leading-relaxed">
           O Fiorella Club reúne mulheres em um espaço acolhedor para
           desacelerar, se conectar e viver momentos que fazem bem ao coração.
         </p>
         <Link
           to="/meeting"
-          className="inline-flex items-center justify-center bg-[#fce3e4] text-[#4a0b16] px-10 py-4 rounded-full hover:bg-white hover:-translate-y-1 transition-all duration-300 shadow-xl text-lg tracking-wide font-medium"
+          className="inline-flex items-center justify-center bg-[#fce3e4] text-[#4a0b16] px-10 py-4 rounded-full hover:bg-white hover:-translate-y-1 transition-all duration-300 shadow-xl text-lg tracking-wide font-medium active:scale-95"
         >
           Quero participar
         </Link>
