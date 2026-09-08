@@ -12,7 +12,7 @@ export function AdminEventosPage() {
   const [error, setError] = useState<string | null>(null);
   
   // Estado que guarda o evento que vai abrir no modal
-  const [eventoParaExcluir, setEventoParaExcluir] = useState<{ id: string | number; title: string } | null>(null);
+  const [eventoParaExcluir, setEventoParaExcluir] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -34,7 +34,7 @@ export function AdminEventosPage() {
     navigate("/admin/login");
   };
 
-  const handleAbrirModal = (id: number | string, titulo: string) => {
+  const handleAbrirModal = (id: string, titulo: string) => {
     setEventoParaExcluir({ id, title: titulo });
   };
 

@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import type { ReactElement } from "react";
 import ApresentationPage from "../pages/ApresentationPage";
 import MeetingPage from "../pages/meetingPage";
 import ConfirmacaoPage from "../pages/ConfirmacaoPage";
@@ -8,7 +9,7 @@ import { AdminInscricoesPage } from "../pages/Admin/AdminInscricoesPage";
 import { AdminCriarEventoPage } from "../pages/Admin/AdminCriarEventoPage";
 import { AdminEditarEventoPage } from "../pages/Admin/AdminEditarEventoPage";
 
-function RotaProtegida({ children }: { children: JSX.Element }) {
+function RotaProtegida({ children }: { children: ReactElement }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/admin/login" />;
 }
