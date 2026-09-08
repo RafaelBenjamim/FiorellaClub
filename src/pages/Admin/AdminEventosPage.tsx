@@ -57,6 +57,7 @@ export function AdminEventosPage() {
       year: "numeric",
     });
   };
+  
 
   const formatarValor = (valor: number) => {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
