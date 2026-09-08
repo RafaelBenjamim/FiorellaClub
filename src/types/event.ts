@@ -8,7 +8,9 @@ export interface Evento {
   registeredCount: number;
   location: string | null;
   imageUrl: string | null;
-}
+} 
+
+export type UpdateEventDto = Omit<Evento, "id" | "registeredCount">;
 
 export interface RegistrationRequest {
   eventId: string;
