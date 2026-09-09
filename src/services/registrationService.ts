@@ -22,7 +22,7 @@ export async function createRegistration(
 }
 
 export async function getConfirmacao(id: string): Promise<ConfirmacaoResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/registrations/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/api/registration/${id}`, {
     headers: {
       "ngrok-skip-browser-warning": "true",
     },
