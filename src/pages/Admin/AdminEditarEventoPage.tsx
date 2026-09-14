@@ -4,46 +4,46 @@ import { getEventoById, editarEvento } from "../../services/eventService";
 
 export function AdminEditarEventoPage() {
   const navigate = useNavigate();
-  
-  // 1. PEGA O ID DA URL
-  // Lembra que a rota que criamos foi `/admin/editarEvento/:id`? 
-  // O useParams puxa esse ID de lá para sabermos qual evento estamos editando.
   const { eventId } = useParams<{ eventId: string }>();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 2. O ESTADO DO FORMULÁRIO
-  // Guardamos aqui todos os campos que o seu UpdateEventRequestDto do C# espera receber.
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     date: "",
     price: 0,
+    fiorellaDiscount: 0, // NOVO CAMPO
     maxAttendees: 0,
     location: "",
     imageUrl: "",
   });
 
-  // 3. BUSCAR OS DADOS AO ABRIR A TELA (useEffect)
-  // Assim que a página abre, fazemos um GET no C# para preencher os inputs com o que já está salvo no banco.
   useEffect(() => {
     const fetchEvento = async () => {
       if (!eventId) return;
       try {
         const evento = await getEventoById(eventId);
         
-        // Formatamos a data para o formato aceito pelo input type="date" (YYYY-MM-DD)
-        const dataFormatada = evento.date
-        ? new Date(evento.date.endsWith("Z") ? evento.date : evento.date + "Z")
-        .toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" })
-        : "";
+        // --- O PULO DO GATO PARA A HORA FUNCIONAR ---
+        // O input type="datetime-local" espera exatamente: "YYYY-MM-DDTHH:mm"
+        // Se a API devolve "2026-09-09T21:15:54.000Z", cortamos os segundos para encaixar no input.
+        let dataFormatada = "";
+        if (evento.date) {
+          const dateObj = new Date(evento.date);
+          // Ajusta para o fuso horário local para não dar problema de exibir hora errada no input
+          const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+          const localISOTime = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+          dataFormatada = localISOTime;
+        }
 
         setFormData({
           title: evento.title,
           description: evento.description || "",
           date: dataFormatada,
           price: evento.price,
+          fiorellaDiscount: evento.discountPercentage || 0, // Preenche com o banco, se existir
           maxAttendees: evento.maxAttendees,
           location: evento.location || "",
           imageUrl: evento.imageUrl || "",
@@ -58,7 +58,6 @@ export function AdminEditarEventoPage() {
     fetchEvento();
   }, [eventId]);
 
-  // 4. ATUALIZAR O ESTADO CONFORME O USUÁRIO DIGITA
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -67,22 +66,22 @@ export function AdminEditarEventoPage() {
     }));
   };
 
-  // 5. ENVIAR AS ALTERAÇÕES (O seu endpoint [HttpPut("EditEvent/{eventId}")])
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita que a página recarregue sozinha
+    e.preventDefault(); 
     if (!eventId) return;
 
     try {
-      // Chamamos a função do service que faz o PUT para a API em C#
-     await editarEvento(eventId, {
-  ...formData,
-  date: new Date(formData.date + "T12:00:00").toISOString(),  // ← meio-dia UTC
-  price: Number(formData.price),
-  maxAttendees: Number(formData.maxAttendees),
-});
+      await editarEvento(eventId, {
+        ...formData,
+        // Envia a data exata que está no input + "Z" (ou converte para ISO completo)
+        date: new Date(formData.date).toISOString(), 
+        price: Number(formData.price),
+        discountPercentage: Number(formData.fiorellaDiscount), // Garante que é número
+        maxAttendees: Number(formData.maxAttendees),
+      });
 
       alert("Evento atualizado com sucesso!");
-      navigate("/admin/eventos"); // Volta para a listagem
+      navigate("/admin/eventos"); 
     } catch (err) {
       alert("Erro ao atualizar o evento. Tente novamente.");
     }
@@ -117,7 +116,6 @@ export function AdminEditarEventoPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           
-          {/* Título */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[#fce3e4]">Título do Evento</label>
             <input
@@ -130,35 +128,21 @@ export function AdminEditarEventoPage() {
             />
           </div>
 
-          {/* Descrição */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[#fce3e4]">Descrição</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              rows={3}
+              rows={4}
               className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all resize-none"
             />
           </div>
 
+          {/* Dados Financeiros */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Data */}
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-[#fce3e4]">Data</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
-              />
-            </div>
-
-            {/* Preço */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-[#fce3e4]">Preço (R$)</label>
+              <label className="text-sm font-medium text-[#fce3e4]">Preço Inteiro (R$)</label>
               <input
                 type="number"
                 step="0.01"
@@ -169,10 +153,36 @@ export function AdminEditarEventoPage() {
                 className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
               />
             </div>
+            
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[#fce3e4]">
+                Desconto Fiorella (%)
+              </label>
+              <input
+                type="number"
+                name="fiorellaDiscount"
+                value={formData.fiorellaDiscount}
+                onChange={handleChange}
+                min="0"
+                max="100"
+                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Vagas Máximas */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[#fce3e4]">Data e Hora</label>
+              <input
+                type="datetime-local"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                required
+                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all [color-scheme:dark]"
+              />
+            </div>
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#fce3e4]">Máximo de Vagas</label>
               <input
@@ -184,8 +194,9 @@ export function AdminEditarEventoPage() {
                 className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
               />
             </div>
+          </div>
 
-            {/* Local */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#fce3e4]">Local</label>
               <input
@@ -196,18 +207,17 @@ export function AdminEditarEventoPage() {
                 className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
               />
             </div>
-          </div>
 
-          {/* URL da Imagem */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#fce3e4]">URL da Imagem</label>
-            <input
-              type="text"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
-            />
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[#fce3e4]">URL da Imagem</label>
+              <input
+                type="text"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-[#fce3e4] outline-none focus:border-[#fce3e4] transition-all"
+              />
+            </div>
           </div>
 
           {/* Botões de Ação */}

@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getConfirmacao } from "../services/registrationService";
-import type { ConfirmacaoResponse } from "../types/event";
+import type { ConfirmacaoResponse } from "../types/registration";
 
 const statusConfig = {
   0: {

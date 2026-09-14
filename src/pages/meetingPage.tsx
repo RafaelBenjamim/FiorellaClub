@@ -3,13 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import heroFallback from "../assets/galeria8.jpg";
 import { getEventos } from "../services/eventService";
 import { createRegistration } from "../services/registrationService";
-import type { Evento } from "../types/event";
+import type { Evento, FormData } from "../types/event";
+import { EventCard } from "../components/eventCard/Index"; // 👈 Importando o componente que criamos
 
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-}
+
 
 function MeetingPage() {
   const { eventId } = useParams();
@@ -41,11 +38,16 @@ function MeetingPage() {
 
   const formatarData = (dataStr: string) => {
     const data = new Date(dataStr);
-    return data.toLocaleDateString("pt-BR", {
+    const dataFormatada = data.toLocaleDateString("pt-BR", {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+    const horaFormatada = data.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${dataFormatada} às ${horaFormatada}`;
   };
 
   const formatarValor = (valor: number) => {
@@ -109,14 +111,12 @@ function MeetingPage() {
     );
   }
 
-  // Se nenhum ID foi passado, exibe a listagem de eventos com a pílula de voltar para o início
   if (!eventId) {
     return (
       <div className="min-h-screen bg-[#fce3e4] text-[#4a0b16] font-sans selection:bg-[#c07a82] selection:text-white">
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 md:px-12">
           
           <div className="mb-10 max-w-3xl">
-            {/* Pílula de Voltar para o Início */}
             <Link
               to="/"
               className="inline-flex items-center gap-2 bg-[#4a0b16] text-[#fce3e4] px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.25em] shadow-md hover:bg-[#940c0c] hover:-translate-y-0.5 transition-all duration-300 mb-6"
@@ -144,61 +144,15 @@ function MeetingPage() {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-3">
-              {eventos.map((evento) => {
-                const vagas = evento.maxAttendees - evento.registeredCount;
-                return (
-                  <article
-                    key={evento.id}
-                    className="rounded-[2.5rem] border border-[#fce3e4] bg-white p-6 shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md group"
-                  >
-                    <div className="relative mb-5 overflow-hidden rounded-[1.8rem] h-48 bg-[#fce3e4]/30">
-                      <img
-                        src={evento.imageUrl || heroFallback}
-                        alt={evento.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-[#4a0b16] shadow-sm">
-                        {formatarValor(evento.price)}
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <p className="text-xs uppercase tracking-[0.25em] text-[#c07a82] font-bold mb-1.5">
-                        {formatarData(evento.date)}
-                      </p>
-                      <h2 className="text-2xl font-serif text-[#4a0b16] group-hover:text-[#c07a82] transition-colors leading-snug">
-                        {evento.title}
-                      </h2>
-                    </div>
-
-                    <p className="text-[#940c0c]/80 text-sm leading-relaxed mb-6 flex-1 line-clamp-3">
-                      {evento.description}
-                    </p>
-
-                    <div className="text-xs font-medium text-[#4a0b16]/80 mb-6 space-y-2 pt-4 border-t border-[#fce3e4]/60">
-                      {evento.location && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#c07a82]">📍</span>
-                          <span className="truncate">{evento.location}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#c07a82]">🪑</span>
-                        <span className={vagas > 0 ? "text-[#4a0b16]" : "text-[#940c0c] font-semibold"}>
-                          {vagas > 0 ? `${vagas} vagas restantes` : "Vagas esgotadas"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Link
-                      to={`/meeting/${evento.id}`}
-                      className="inline-flex items-center justify-center rounded-full bg-[#4a0b16] px-6 py-3.5 text-[#fce3e4] font-semibold text-sm transition-all duration-300 hover:bg-[#940c0c] active:scale-95 shadow-sm"
-                    >
-                      Ver detalhes e participar
-                    </Link>
-                  </article>
-                );
-              })}
+              {/* 🌟 USANDO O COMPONENTE ISOLADO AQUI */}
+              {eventos.map((evento) => (
+                <EventCard 
+                  key={evento.id} 
+                  evento={evento} 
+                  formatarValor={formatarValor} 
+                  formatarData={formatarData} 
+                />
+              ))}
             </div>
           )}
         </div>
@@ -206,7 +160,6 @@ function MeetingPage() {
     );
   }
 
-  // Evento não encontrado via ID na rota
   if (!eventoSelecionado) {
     return (
       <div className="min-h-screen bg-[#fce3e4] flex items-center justify-center px-6">
@@ -225,11 +178,12 @@ function MeetingPage() {
     );
   }
 
-  // Tela de Detalhes do Evento & Inscrição com a Pílula Flutuante de Voltar
+  const descontoAtual = eventoSelecionado.discountPercentage || 0;
+  const valorComDesconto = eventoSelecionado.price - (eventoSelecionado.price * (descontoAtual / 100));
+
   return (
     <div className="min-h-screen bg-[#fce3e4] text-[#4a0b16] font-sans selection:bg-[#c07a82] selection:text-white pb-16">
       
-      {/* Banner Superior Imersivo */}
       <div className="relative w-full h-[40vh] md:h-[48vh] overflow-hidden">
         <img
           src={eventoSelecionado.imageUrl || heroFallback}
@@ -238,7 +192,6 @@ function MeetingPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#4a0b16]/80 via-[#4a0b16]/30 to-black/20" />
 
-        {/* Pílula Flutuante de Voltar aos Encontros */}
         <Link
           to="/meeting"
           className="absolute top-6 left-6 md:left-12 inline-flex items-center gap-2 bg-[#4a0b16]/80 backdrop-blur-md text-[#fce3e4] px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-[#4a0b16] hover:-translate-y-0.5 transition-all duration-300"
@@ -256,12 +209,10 @@ function MeetingPage() {
         </div>
       </div>
 
-      {/* Conteúdo Principal & Formulário de Inscrição Unificado */}
       <div className="flex flex-col items-center px-6 -mt-12 relative z-10">
         <div className="w-full max-w-2xl bg-white rounded-[2.5rem] shadow-xl border border-[#fce3e4] p-8 md:p-12">
           
-          {/* Informações rápidas em pílulas elegantes */}
-          <div className="flex flex-wrap items-center gap-3 mb-8 pb-6 border-b border-[#fce3e4]/60 text-xs md:text-sm font-medium text-[#940c0c]">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8 pb-6 border-b border-[#fce3e4]/60 text-xs md:text-sm font-medium text-[#940c0c]">
             {eventoSelecionado.location && (
               <span className="bg-[#fce3e4]/40 px-4 py-2 rounded-full flex items-center gap-1.5">
                 📍 {eventoSelecionado.location}
@@ -273,6 +224,12 @@ function MeetingPage() {
             <span className="bg-[#fce3e4]/40 px-4 py-2 rounded-full flex items-center gap-1.5">
               🪑 {vagasRestantes > 0 ? `${vagasRestantes} vagas restantes` : "Esgotado"}
             </span>
+
+            {descontoAtual > 0 && (
+              <span className="bg-[#4a0b16] text-[#fce3e4] px-4 py-2 rounded-full flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest shadow-sm">
+                ✨ Benefício Membro: {descontoAtual}% OFF
+              </span>
+            )}
           </div>
 
           <div className="mb-10">
@@ -284,7 +241,6 @@ function MeetingPage() {
             </p>
           </div>
 
-          {/* Bloco do Formulário Direto */}
           <div>
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-serif text-[#4a0b16] mb-2">
@@ -347,10 +303,19 @@ function MeetingPage() {
                 />
               </div>
 
+              {descontoAtual > 0 && (
+                <div className="mt-2 mb-2 bg-[#fffaf8] border border-[#fce3e4] rounded-2xl p-4 flex items-start gap-3">
+                  <div className="text-[#c07a82] text-xl">✨</div>
+                  <p className="text-xs text-[#940c0c] leading-relaxed">
+                    <strong>Benefício Membro Fiorella:</strong> O seu e-mail será validado automaticamente. Caso você já tenha participado de encontros anteriores, seu desconto de <strong>{descontoAtual}%</strong> será aplicado e você pagará apenas <strong>{formatarValor(valorComDesconto)}</strong> na próxima etapa!
+                  </p>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={submitting || vagasRestantes === 0}
-                className="mt-4 w-full bg-[#4a0b16] text-[#fce3e4] py-4 px-6 rounded-full hover:bg-[#940c0c] hover:-translate-y-0.5 transition-all duration-300 shadow-xl text-base tracking-wide font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none text-center"
+                className="mt-2 w-full bg-[#4a0b16] text-[#fce3e4] py-4 px-6 rounded-full hover:bg-[#940c0c] hover:-translate-y-0.5 transition-all duration-300 shadow-xl text-base tracking-wide font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none text-center"
               >
                 {submitting
                   ? "Processando pagamento..."

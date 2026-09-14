@@ -11,6 +11,7 @@ export function AdminCriarEventoPage() {
     description: "",
     date: "",
     price: "",
+    discountPercentage: "", // NOVO CAMPO DE DESCONTO
     maxAttendees: "",
     location: "",
     imageUrl: "",
@@ -42,6 +43,8 @@ export function AdminCriarEventoPage() {
           description: formData.description,
           date: new Date(formData.date).toISOString(),
           price: parseFloat(formData.price),
+          // Envia o desconto (se estiver vazio, envia 0)
+          discountPercentage: formData.discountPercentage ? parseFloat(formData.discountPercentage) : 0, 
           maxAttendees: parseInt(formData.maxAttendees),
           location: formData.location || null,
           imageUrl: formData.imageUrl || null,
@@ -123,7 +126,43 @@ export function AdminCriarEventoPage() {
             />
           </div>
 
-          {/* Data + Valor */}
+          {/* Dados Financeiros (Valor + Desconto) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[#fce3e4]/70 text-sm">
+                Valor Inteiro (R$)
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="Ex: 150.00"
+                required
+                min="0"
+                step="0.01"
+                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[#fce3e4]/70 text-sm">
+                Desconto Fiorella (%) <span className="text-white/30">(opcional)</span>
+              </label>
+              <input
+                type="number"
+                name="fiorellaDiscount"
+                value={formData.discountPercentage}
+                onChange={handleChange}
+                placeholder="Ex: 15"
+                min="0"
+                max="100"
+                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Data + Local */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-[#fce3e4]/70 text-sm">
@@ -136,42 +175,6 @@ export function AdminCriarEventoPage() {
                 onChange={handleChange}
                 required
                 className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] focus:outline-none focus:border-[#c07a82] transition-colors [color-scheme:dark]"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-[#fce3e4]/70 text-sm">
-                Valor (R$)
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="150.00"
-                required
-                min="0"
-                step="0.01"
-                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Vagas + Local */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-[#fce3e4]/70 text-sm">
-                Limite de vagas
-              </label>
-              <input
-                type="number"
-                name="maxAttendees"
-                value={formData.maxAttendees}
-                onChange={handleChange}
-                placeholder="15"
-                required
-                min="1"
-                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
               />
             </div>
 
@@ -190,19 +193,37 @@ export function AdminCriarEventoPage() {
             </div>
           </div>
 
-          {/* URL da imagem */}
-          <div className="flex flex-col gap-2">
-            <label className="text-[#fce3e4]/70 text-sm">
-              URL da imagem <span className="text-white/30">(opcional)</span>
-            </label>
-            <input
-              type="url"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              placeholder="https://..."
-              className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
-            />
+          {/* Vagas + Imagem */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[#fce3e4]/70 text-sm">
+                Limite de vagas
+              </label>
+              <input
+                type="number"
+                name="maxAttendees"
+                value={formData.maxAttendees}
+                onChange={handleChange}
+                placeholder="Ex: 15"
+                required
+                min="1"
+                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[#fce3e4]/70 text-sm">
+                URL da imagem <span className="text-white/30">(opcional)</span>
+              </label>
+              <input
+                type="url"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                placeholder="https://..."
+                className="bg-white/10 border border-white/20 rounded-2xl px-5 py-3.5 text-[#fce3e4] placeholder:text-white/30 focus:outline-none focus:border-[#c07a82] transition-colors"
+              />
+            </div>
           </div>
 
           {/* Erro */}

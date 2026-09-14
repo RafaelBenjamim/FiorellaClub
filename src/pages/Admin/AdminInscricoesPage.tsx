@@ -21,6 +21,9 @@ export function AdminInscricoesPage() {
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Estado para controlar o filtro selecionado ("all" | 0 | 1 | 2)
+  const [filtroStatus, setFiltroStatus] = useState<number | "all">("all");
 
   useEffect(() => {
     const fetchInscricoes = async () => {
@@ -51,6 +54,18 @@ export function AdminInscricoesPage() {
 
     fetchInscricoes();
   }, [eventId]);
+
+  // Contagens para os cards de resumo
+  const totalInscricoes = inscricoes.length;
+  const totalConfirmadas = inscricoes.filter((i) => i.status === 1).length;
+  const totalPendentes = inscricoes.filter((i) => i.status === 0).length;
+  const totalCanceladas = inscricoes.filter((i) => i.status === 2).length;
+
+  // Inscrições filtradas de acordo com o botão selecionado
+  const inscricoesFiltradas = inscricoes.filter((inscricao) => {
+    if (filtroStatus === "all") return true;
+    return inscricao.status === filtroStatus;
+  });
 
   if (loading) {
     return (
@@ -91,80 +106,161 @@ export function AdminInscricoesPage() {
 
       <div className="max-w-6xl mx-auto px-6 py-10 md:py-16">
         
-        {/* Bloco de Título e Contagem */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+        {/* Bloco de Título e Contagens */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
           <div>
             <h2 className="text-3xl md:text-4xl font-serif text-[#4a0b16] mb-2">Inscrições</h2>
             <p className="text-sm text-[#940c0c]/80">Gerencie as participantes deste encontro.</p>
           </div>
           
-          <div className="bg-white rounded-3xl px-8 py-4 border border-[#fce3e4] shadow-sm flex flex-col items-center min-w-[140px]">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#c07a82] font-bold mb-1">
-              Total
-            </p>
-            <p className="text-3xl font-serif text-[#4a0b16]">
-              {inscricoes.length}
-            </p>
+          {/* Cards de Resumo */}
+          <div className="flex gap-4 w-full md:w-auto">
+            <div className="flex-1 md:flex-initial bg-white rounded-3xl px-6 py-4 border border-[#fce3e4] shadow-sm flex flex-col items-center min-w-[120px]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-700 font-bold mb-1">
+                Confirmadas
+              </p>
+              <p className="text-3xl font-serif text-emerald-800">
+                {totalConfirmadas}
+              </p>
+            </div>
+
+            <div className="flex-1 md:flex-initial bg-white/70 rounded-3xl px-6 py-4 border border-[#fce3e4] shadow-sm flex flex-col items-center min-w-[120px]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#c07a82] font-bold mb-1">
+                Total Geral
+              </p>
+              <p className="text-3xl font-serif text-[#4a0b16]">
+                {totalInscricoes}
+              </p>
+            </div>
           </div>
         </div>
 
-        {inscricoes.length === 0 ? (
+        {/* Barra de Filtros por Status */}
+        <div className="flex flex-wrap gap-2 mb-8 bg-white/60 p-2 rounded-2xl border border-[#fce3e4]">
+          <button
+            onClick={() => setFiltroStatus("all")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              filtroStatus === "all"
+                ? "bg-[#4a0b16] text-[#fce3e4] shadow-sm"
+                : "text-[#4a0b16]/70 hover:bg-white/80"
+            }`}
+          >
+            Todas ({totalInscricoes})
+          </button>
+          <button
+            onClick={() => setFiltroStatus(1)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              filtroStatus === 1
+                ? "bg-emerald-700 text-white shadow-sm"
+                : "text-emerald-800/80 hover:bg-white/80"
+            }`}
+          >
+            Confirmadas ({totalConfirmadas})
+          </button>
+          <button
+            onClick={() => setFiltroStatus(0)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              filtroStatus === 0
+                ? "bg-amber-700 text-white shadow-sm"
+                : "text-amber-800/80 hover:bg-white/80"
+            }`}
+          >
+            Pendentes ({totalPendentes})
+          </button>
+          <button
+            onClick={() => setFiltroStatus(2)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              filtroStatus === 2
+                ? "bg-red-700 text-white shadow-sm"
+                : "text-red-800/80 hover:bg-white/80"
+            }`}
+          >
+            Canceladas ({totalCanceladas})
+          </button>
+        </div>
+
+        {inscricoesFiltradas.length === 0 ? (
           <div className="text-center py-20 bg-white/50 rounded-[2.5rem] border border-[#fce3e4]">
             <p className="text-[#940c0c] font-serif text-2xl mb-2">
-              Nenhuma inscrição ainda.
+              Nenhuma inscrição encontrada com este filtro.
             </p>
             <p className="text-[#4a0b16]/70 text-sm">
-              As inscrições confirmadas aparecerão aqui.
+              Tente selecionar outra categoria acima.
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-[2rem] border border-[#fce3e4] shadow-sm overflow-hidden">
+          <div className="grid grid-cols-1 gap-4 md:gap-0 md:bg-white md:rounded-[2rem] md:border border-[#fce3e4] md:shadow-sm md:overflow-hidden md:divide-y md:divide-[#fce3e4]/60">
             
-            {/* Wrapper de Scroll Horizontal para Telas Pequenas */}
-            <div className="overflow-x-auto custom-scrollbar">
-              
-              {/* Largura mínima força a tabela a não espremer em telas menores */}
-              <div className="min-w-[800px]">
+            {/* Header da tabela (Desktop) */}
+            <div className="hidden md:grid grid-cols-[1.5fr_2fr_1.2fr_1fr] gap-4 px-8 py-4 bg-[#fffaf8] border-b border-[#fce3e4] text-[10px] uppercase tracking-[0.2em] text-[#c07a82] font-bold">
+              <span>Nome</span>
+              <span>Email</span>
+              <span>Telefone</span>
+              <span>Status</span>
+            </div>
+
+            {/* Linhas / Cards */}
+            {inscricoesFiltradas.map((inscricao, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-[1.5rem] md:rounded-none border border-[#fce3e4] md:border-none p-6 md:p-0 md:px-8 md:py-5 flex flex-col md:grid md:grid-cols-[1.5fr_2fr_1.2fr_1fr] md:gap-4 md:items-center hover:bg-[#fffaf8]/50 transition-colors shadow-sm md:shadow-none"
+              >
                 
-                {/* Header da tabela (Proporções ajustadas: Nome 1.5, Email 2.0, Fone 1.2, Status 1.0) */}
-                <div className="grid grid-cols-[1.5fr_2fr_1.2fr_1fr] gap-4 px-8 py-4 bg-[#fffaf8] border-b border-[#fce3e4] text-[10px] uppercase tracking-[0.2em] text-[#c07a82] font-bold">
-                  <span>Nome</span>
-                  <span>Email</span>
-                  <span>Telefone</span>
-                  <span>Status</span>
+                {/* Mobile Header */}
+                <div className="flex justify-between items-start mb-4 md:hidden">
+                  <span className="font-serif text-xl text-[#4a0b16] pr-2">
+                    {inscricao.name}
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap ${
+                      statusLabel[inscricao.status]?.cor
+                    }`}
+                  >
+                    {statusLabel[inscricao.status]?.texto}
+                  </span>
                 </div>
 
-                {/* Linhas */}
-                <div className="divide-y divide-[#fce3e4]/60">
-                  {inscricoes.map((inscricao, i) => (
-                    <div
-                      key={i}
-                      className="grid grid-cols-[1.5fr_2fr_1.2fr_1fr] gap-4 px-8 py-5 items-center hover:bg-[#fffaf8]/50 transition-colors"
-                    >
-                      <span className="font-medium text-[#4a0b16] truncate pr-4">
-                        {inscricao.name}
-                      </span>
-                      <span className="text-[#940c0c] text-sm truncate pr-4">
-                        {inscricao.email}
-                      </span>
-                      <span className="text-[#4a0b16]/80 text-sm font-mono tracking-tight">
-                        {inscricao.phone}
-                      </span>
-                      <div>
-                        <span
-                          className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full ${
-                            statusLabel[inscricao.status]?.cor
-                          }`}
-                        >
-                          {statusLabel[inscricao.status]?.texto}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                {/* Desktop Nome */}
+                <span className="hidden md:block font-medium text-[#4a0b16] truncate pr-4">
+                  {inscricao.name}
+                </span>
+
+                {/* Contatos */}
+                <div className="space-y-3 md:space-y-0 md:contents text-sm">
+                  
+                  <div className="flex flex-col md:block">
+                    <span className="text-[10px] uppercase tracking-widest text-[#c07a82] font-bold md:hidden mb-0.5">
+                      Email
+                    </span>
+                    <span className="text-[#940c0c] truncate pr-4">
+                      {inscricao.email}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col md:block">
+                    <span className="text-[10px] uppercase tracking-widest text-[#c07a82] font-bold md:hidden mb-0.5">
+                      Telefone
+                    </span>
+                    <span className="text-[#4a0b16]/80 font-mono tracking-tight">
+                      {inscricao.phone}
+                    </span>
+                  </div>
+
                 </div>
+
+                {/* Desktop Status */}
+                <div className="hidden md:block">
+                  <span
+                    className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full ${
+                      statusLabel[inscricao.status]?.cor
+                    }`}
+                  >
+                    {statusLabel[inscricao.status]?.texto}
+                  </span>
+                </div>
+
               </div>
-            </div>
-            
+            ))}
           </div>
         )}
       </div>

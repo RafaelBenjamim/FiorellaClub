@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/api";
-import type { RegistrationRequest, RegistrationResponse, ConfirmacaoResponse } from "../types/event";
+import type { RegistrationRequest, RegistrationResponse, ConfirmacaoResponse } from "../types/registration";
 
 export async function createRegistration(
   data: RegistrationRequest,
