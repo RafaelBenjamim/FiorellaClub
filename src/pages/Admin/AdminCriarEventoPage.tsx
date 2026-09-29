@@ -151,7 +151,7 @@ export function AdminCriarEventoPage() {
               </label>
               <input
                 type="number"
-                name="fiorellaDiscount"
+                name="discountPercentage"
                 value={formData.discountPercentage}
                 onChange={handleChange}
                 placeholder="Ex: 15"

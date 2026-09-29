@@ -7,8 +7,7 @@ export async function createRegistration(
   const response = await fetch(`${API_BASE_URL}/api/registration`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true",
+      "Content-Type": "application/json"
     },
     body: JSON.stringify(data),
   });

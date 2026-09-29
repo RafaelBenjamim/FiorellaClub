@@ -3,6 +3,7 @@ export interface RegistrationRequest {
   name: string;
   email: string;
   phone: string;
+  agreeToTerms: boolean;
 }
 
 export interface RegistrationResponse {

@@ -4,9 +4,8 @@ import heroFallback from "../assets/galeria8.jpg";
 import { getEventos } from "../services/eventService";
 import { createRegistration } from "../services/registrationService";
 import type { Evento, FormData } from "../types/event";
-import { EventCard } from "../components/eventCard/Index"; // 👈 Importando o componente que criamos
-
-
+import { EventCard } from "../components/eventCard/Index";
+import { TermsModal } from "../components/modal/TermsModal/TermsModal";
 
 function MeetingPage() {
   const { eventId } = useParams();
@@ -20,6 +19,7 @@ function MeetingPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   useEffect(() => {
     getEventos()
@@ -57,7 +57,7 @@ function MeetingPage() {
     });
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!eventoSelecionado) return;
 
@@ -65,6 +65,12 @@ function MeetingPage() {
       setSubmitError("Preencha todos os campos para reservar sua vaga.");
       return;
     }
+
+    setIsTermsModalOpen(true);
+  };
+
+  const handleConfirmRegistration = async () => {
+    if (!eventoSelecionado) return;
 
     setSubmitting(true);
     setSubmitError(null);
@@ -75,6 +81,7 @@ function MeetingPage() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        agreeToTerms: true,
       });
 
       window.location.assign(response.paymentUrl);
@@ -82,6 +89,7 @@ function MeetingPage() {
       const message =
         err instanceof Error ? err.message : "Erro ao realizar inscrição.";
       setSubmitError(message);
+      setIsTermsModalOpen(false);
     } finally {
       setSubmitting(false);
     }
@@ -144,7 +152,6 @@ function MeetingPage() {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-3">
-              {/* 🌟 USANDO O COMPONENTE ISOLADO AQUI */}
               {eventos.map((evento) => (
                 <EventCard 
                   key={evento.id} 
@@ -325,9 +332,15 @@ function MeetingPage() {
               </button>
             </form>
           </div>
-
         </div>
       </div>
+
+      <TermsModal
+        isOpen={isTermsModalOpen}
+        submitting={submitting}
+        onClose={() => setIsTermsModalOpen(false)}
+        onConfirm={handleConfirmRegistration}
+      />
     </div>
   );
 }
